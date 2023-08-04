@@ -25,7 +25,7 @@ ffmpeg_location = "./ffmpeg/bin/ffmpeg"
 server = []
 
 
-url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/Yv9RGDeGrWg"]
+url_quick = ["https://youtu.be/gzY8VH7eb8Y", "https://youtu.be/8WEe-MmC4ag", "https://youtu.be/OS7ktxdKLU4"]
 ###########################################
 ###########################################
         
@@ -92,6 +92,11 @@ class player():
         self.np_dic['author'] = self.q_list[0]['author']
 
         return self.np_dic
+    
+    def channel_set(self, channel: discord.TextChannel):
+        self.channel = channel
+
+        return self.channel
         
 ###########################################
 ###########################################
@@ -130,7 +135,7 @@ class DJ(commands.Cog):
                 for i in range(0, len(self.bot.voice_clients)):
                     if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
                         await leave(self, i)
-                        #await context.send("*Never left without saying goodbye...*")
+                        await server[i].channel.send("*Never left without saying goodbye...*")
         except:
             pass
     ###########################################
@@ -184,6 +189,7 @@ class DJ(commands.Cog):
             await channel.connect()
             server_num = server_check(self, channel)
             server.append(server_0)
+            server[server_num].channel_set(ctx.channel)
         except:
             server_num = server_check(self, channel)
 
