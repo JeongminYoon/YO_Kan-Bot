@@ -36,7 +36,7 @@ url_quick = ["https://youtu.be/gzY8VH7eb8Y", "https://youtu.be/8WEe-MmC4ag", "ht
 ################ Functions ################
 ##########################################
 async def leave(self, num):
-    server.clear()
+    server.pop(num)
     await self.bot.voice_clients[num].disconnect()
 
 def server_check(self, channel: discord.VoiceChannel):
