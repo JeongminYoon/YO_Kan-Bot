@@ -36,17 +36,7 @@ url_quick = ["https://youtu.be/gzY8VH7eb8Y", "https://youtu.be/8WEe-MmC4ag", "ht
 ################ Functions ################
 ##########################################
 async def leave(self, num):
-    queue_list = server[num].q_list
-    #np = server[num].np_dic
-
-    if len(queue_list) >= 1:
-        queue_list.clear()
-        
-    # np['url'] = ''
-    # np['title'] = ''
-    # np['author'] = ''
-    # np['duration'] = ''
-
+    server.clear()
     await self.bot.voice_clients[num].disconnect()
 
 def server_check(self, channel: discord.VoiceChannel):
@@ -134,8 +124,9 @@ class DJ(commands.Cog):
             else:
                 for i in range(0, len(self.bot.voice_clients)):
                     if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
-                        await leave(self, i)
                         await server[i].channel.send("*Never left without saying goodbye...*")
+                        await leave(self, i)
+                        
         except:
             pass
     ###########################################
