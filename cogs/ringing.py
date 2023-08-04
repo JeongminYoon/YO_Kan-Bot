@@ -7,8 +7,8 @@ import asyncio
 ################ Message ##################
 ###########################################
 
-message_success = "GO DOWN FIGHTING TO THE END!"
-message_fail = "Be a conscience to act. Discretion without action is on the side of the devil."
+message_success = ""
+message_fail = ""
 time = 3
 
 ###########################################
