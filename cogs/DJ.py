@@ -25,7 +25,7 @@ ffmpeg_location = "./ffmpeg/bin/ffmpeg"
 server = []
 
 
-url_quick = ["https://youtu.be/gzY8VH7eb8Y", "https://youtu.be/8WEe-MmC4ag", "https://youtu.be/OS7ktxdKLU4"]
+url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/Yv9RGDeGrWg"]
 ###########################################
 ###########################################
         
@@ -47,6 +47,10 @@ def server_check(self, channel: discord.VoiceChannel):
                 else:
                     server_num = None
     return server_num
+
+async def time_sum(result:datetime, a: datetime = datetime.timedelta(seconds=0), b: datetime = datetime.timedelta(seconds=0)):
+    result += a + b
+    return result
 ###########################################
 ###########################################
 
@@ -117,7 +121,7 @@ class DJ(commands.Cog):
 
     ################# Methods #################
     ###########################################
-    async def check(self):
+    async def left(self):
         try:
             if self.bot.voice_clients is None:
                 pass
@@ -143,7 +147,7 @@ class DJ(commands.Cog):
 
     @tasks.loop(seconds=0.1)
     async def out(self):
-        await self.check()
+        await self.left()
 
 
 
@@ -154,8 +158,8 @@ class DJ(commands.Cog):
 
     @commands.command(name="play", aliases=["p", "P", "ㅔ"])
     async def play(self, ctx, url):
-       
-        global server_0
+
+        
         
         server_0 = player()
         
@@ -266,7 +270,13 @@ class DJ(commands.Cog):
     @commands.command(name="queue", aliases=["q", "Q", "ㅂ"])
     async def queue(self, ctx, num:int = 1):
 
-        server_num = server_check(self, ctx.author.voice.channel)
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
 
         
 
@@ -311,14 +321,16 @@ class DJ(commands.Cog):
                 for i in range(0, len(playlist_duration)):
                     if i * 2 == len(playlist_duration):
                         break
-                    playlist_duration_t += playlist_duration[i] + playlist_duration[p_list_len-i]
+                    playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i], playlist_duration[p_list_len-i])
+                    
             
             else: #홀
                for i in range(0, len(playlist_duration)):
                     if i * 2 == p_list_len:
-                        playlist_duration_t += playlist_duration[i]
+                        playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i])
                         break
-                    playlist_duration_t += playlist_duration[i] + playlist_duration[p_list_len-i]
+                    playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i], playlist_duration[p_list_len-i])
+                    
                     
             embed.add_field(name=f'Lists {playlist_duration_t}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
 
@@ -333,7 +345,14 @@ class DJ(commands.Cog):
 
     @commands.command(name="skip", aliases=["s", "S", "ㄴ"])
     async def skip(self, ctx):
-        server_num = server_check(self, ctx.author.voice.channel)
+
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+        
+        server_num = server_check(self, a_voice)
         
         if ctx.voice_client.is_playing():
             self.bot.voice_clients[server_num].stop()
@@ -347,11 +366,17 @@ class DJ(commands.Cog):
 
     ###########################################
     ###########################################
-
+    
     @commands.command(name="leave", aliases=["l", "L", "ㅣ"])
     async def leave(self, ctx):
 
-        server_num = server_check(self, ctx.author.voice.channel)
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
 
         channel_id = self.bot.voice_clients[server_num].channel.id
         
@@ -370,7 +395,13 @@ class DJ(commands.Cog):
 
         index = num - 1
 
-        server_num = server_check(self, ctx.author.voice.channel)
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
 
         queue_list = server[server_num].q_list
 
@@ -397,7 +428,13 @@ class DJ(commands.Cog):
     @commands.command(name="nowplaying", aliases=["np", "Np", "NP", "ㅞ"])
     async def now_playing(self, ctx):
 
-        server_num = server_check(self, ctx.author.voice.channel)
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
         
         nowplaying = server[server_num].np_dic
 
