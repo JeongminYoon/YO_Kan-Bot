@@ -22,8 +22,6 @@ ffmpeg_options = {
 
 ffmpeg_location = "./ffmpeg/bin/ffmpeg" 
 
-server = []
-
 
 url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/Yv9RGDeGrWg"]
 ###########################################
@@ -36,7 +34,7 @@ url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "ht
 ################ Functions ################
 ##########################################
 async def leave(self, num):
-    server.pop(num)
+    self.server.pop(num)
     await self.bot.voice_clients[num].disconnect()
 
 def server_check(self, channel: discord.VoiceChannel):
@@ -62,7 +60,7 @@ async def time_sum(result:datetime, a: datetime = datetime.timedelta(seconds=0),
 ###########################################
 class player():
     def __init__(self):
-
+        
         self.q_list = []
         self.np_dic = {'title':'', 'duration':'', 'url':'', 'author':''}
         
@@ -112,6 +110,7 @@ class DJ(commands.Cog):
                 'noplaylist':True
                 }
         self.DL = YoutubeDL(option)
+        self.server = []
 
         self.out.start()
 
@@ -128,7 +127,7 @@ class DJ(commands.Cog):
             else:
                 for i in range(0, len(self.bot.voice_clients)):
                     if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
-                        await server[i].channel.send("*Never left without saying goodbye...*")
+                        await self.cog_before_invokeserver[i].channel.send("*Never left without saying goodbye...*")
                         await leave(self, i)
                         
         except:
@@ -183,8 +182,8 @@ class DJ(commands.Cog):
         try:
             await channel.connect()
             server_num = server_check(self, channel)
-            server.append(server_0)
-            server[server_num].channel_set(ctx.channel)
+            self.server.append(server_0)
+            self.server[server_num].channel_set(ctx.channel)
         except:
             server_num = server_check(self, channel)
 
@@ -201,9 +200,9 @@ class DJ(commands.Cog):
         author = f"{ctx.author.nick} / {ctx.author.name}"
 
         
-        server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
+        self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
 
-        queue_list = server[server_num].q_list
+        queue_list = self.server[server_num].q_list
 
         q_num = len(queue_list) -1
 
@@ -236,7 +235,7 @@ class DJ(commands.Cog):
                 if not ctx.voice_client.is_playing():
                     
                     
-                    server[server_num].nowplaying_set()
+                    self.server[server_num].nowplaying_set()
                     queue_list.pop(0)
 
                     track = discord.FFmpegPCMAudio(link, **ffmpeg_options, executable=ffmpeg_location)
@@ -281,7 +280,7 @@ class DJ(commands.Cog):
         
 
         embed = discord.Embed(title="Queue Info")
-        q_num = len(server[server_num].q_list)
+        q_num = len(self.server[server_num].q_list)
         playlist = ""
         playlist_page = []
         playlist_duration = []
@@ -294,10 +293,10 @@ class DJ(commands.Cog):
         
         else:
             for i in range(0, q_num):
-                p_title = server[server_num].q_list[i]['title']
-                p_url = server[server_num].q_list[i]['url']
-                p_author = server[server_num].q_list[i]['author']
-                p_duration = server[server_num].q_list[i]['duration']
+                p_title = self.server[server_num].q_list[i]['title']
+                p_url = self.server[server_num].q_list[i]['url']
+                p_author = self.server[server_num].q_list[i]['author']
+                p_duration = self.server[server_num].q_list[i]['duration']
 
                 playlist_duration.append(p_duration)
         
@@ -403,7 +402,7 @@ class DJ(commands.Cog):
 
         server_num = server_check(self, a_voice)
 
-        queue_list = server[server_num].q_list
+        queue_list = self.server[server_num].q_list
 
         q_title = queue_list[index]['title']
         q_duration = queue_list[index]['duration']
@@ -436,7 +435,7 @@ class DJ(commands.Cog):
 
         server_num = server_check(self, a_voice)
         
-        nowplaying = server[server_num].np_dic
+        nowplaying = self.server[server_num].np_dic
 
         if ctx.voice_client.is_playing():
             title = nowplaying['title']
