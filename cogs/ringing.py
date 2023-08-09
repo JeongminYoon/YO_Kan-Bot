@@ -3,13 +3,14 @@ import discord
 import random
 import glob
 import asyncio
+from mutagen.mp3 import MP3
 
 ################ Message ##################
 ###########################################
 
-message_success = ""
-message_fail = ""
-time = 3
+message_success = "GO DOWN FIGHTING TO THE END!"
+message_fail = "Be a conscience to act. Discretion without action is on the side of the devil."
+
 
 ###########################################
 ###########################################
@@ -32,15 +33,17 @@ class ringing(commands.Cog):
     async def ringing(self, ctx, channel: discord.VoiceChannel):
         await ctx.message.delete()
         rng = random.randint(0,100)
-        path = './mp3/*.mp3'
+        path = "./mp3/*.mp3"
         link = glob.glob(path)
+        audio = MP3(link[0])
+        
         ffmpeg_location = "./ffmpeg/bin/ffmpeg"
-        check = [77, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 5, 2, 12, 22, 32, 42, 52, 62, 72, 82, 92]
+        
         
         player = discord.FFmpegPCMAudio(executable=ffmpeg_location, source=link[0])
 
         # failed
-        if rng in check:
+        if rng in range(1,31): # 30%
             await ctx.send(f"{ctx.author.mention} tried ringing <#{channel.id}>.\n{message_fail}")
             return
 
@@ -49,7 +52,7 @@ class ringing(commands.Cog):
             await channel.connect()
             ctx.voice_client.play(player)
             await ctx.send(f"{message_success}")
-            await asyncio.sleep(time) 
+            await asyncio.sleep(audio.info.length) 
             await self.bot.voice_clients[0].disconnect()
         else: 
             await ctx.send(f"I'm busy to ringing somewhere.")
