@@ -8,8 +8,8 @@ from mutagen.mp3 import MP3
 ################ Message ##################
 ###########################################
 
-message_success = "GO DOWN FIGHTING TO THE END!"
-message_fail = "Be a conscience to act. Discretion without action is on the side of the devil."
+message_success = "ding-dong"
+message_fail = "You IDIOT!"
 
 
 ###########################################
