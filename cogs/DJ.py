@@ -197,7 +197,11 @@ class DJ(commands.Cog):
         except:
             await ctx.reply("ERROR: URL invalid")
 
-        author = f"{ctx.author.nick} / {ctx.author.name}"
+
+        if ctx.author.nick == None:
+            author = ctx.author.name
+        else:
+            author = ctx.author.nick
 
         
         self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
