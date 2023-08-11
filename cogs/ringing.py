@@ -59,5 +59,5 @@ class ringing(commands.Cog):
         
         
         
-def setup(bot):
-    bot.add_cog(ringing(bot))
+async def setup(bot):
+    await bot.add_cog(ringing(bot))
