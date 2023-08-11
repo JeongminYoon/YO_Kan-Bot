@@ -512,5 +512,5 @@ if __name__ =='__main__':
     
 
 
-def setup(bot):
-    bot.add_cog(DJ(bot))
+async def setup(bot):
+    await bot.add_cog(DJ(bot))

@@ -2,6 +2,7 @@ from discord.ext import tasks, commands
 import discord
 import os
 from itertools import cycle
+import asyncio
 
 
 BOT_TOKEN = ""
@@ -9,7 +10,7 @@ BOT_TOKEN = ""
 status_message = ["더블 크래시 ", "[help "]
 
 
-def main():
+async def main():
     
     bot = commands.Bot(command_prefix="[", intents=discord.Intents.all(), help_command=None)
 
@@ -18,7 +19,7 @@ def main():
     for filename in os.listdir('./cogs'):
         if'.py'in filename:
             filename = filename.replace('.py','')
-            bot.load_extension(f"cogs.{filename}")
+            await bot.load_extension(f"cogs.{filename}")
 
     status = cycle(status_message)
 
@@ -33,16 +34,15 @@ def main():
 
     @bot.command(name="reload")
     async def reload(ctx, extenseion):
-        bot.unload_extension(f"cogs.{extenseion}")
-        bot.load_extension(f"cogs.{extenseion}")
+        await bot.unload_extension(f"cogs.{extenseion}")
+        await bot.load_extension(f"cogs.{extenseion}")
         await ctx.send(f"{extenseion} reloaded")
 
     
 
-    bot.run(BOT_TOKEN)
+    await bot.start(BOT_TOKEN)
 
-if __name__ =='__main__':
-    main()
+asyncio.run(main())
     
 
 
