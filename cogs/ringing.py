@@ -15,6 +15,16 @@ message_fail = "You IDIOT!"
 ###########################################
 ###########################################
 
+def server_check(self, channel: discord.VoiceChannel):
+    server_num = None
+    for server_num in range(0, len(self.bot.voice_clients)):
+                if channel == self.bot.voice_clients[server_num].channel:
+                    break
+                else:
+                    server_num = None
+    return server_num
+
+
 class ringing(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -38,6 +48,8 @@ class ringing(commands.Cog):
         audio = MP3(link[0])
         
         ffmpeg_location = "./ffmpeg/bin/ffmpeg"
+
+        
         
         
         player = discord.FFmpegPCMAudio(executable=ffmpeg_location, source=link[0])
@@ -50,10 +62,11 @@ class ringing(commands.Cog):
         #succeed
         if self.bot.voice_clients == []:
             await channel.connect()
+            num = server_check(self, channel)
             ctx.voice_client.play(player)
             await ctx.send(f"{message_success}")
-            await asyncio.sleep(audio.info.length) 
-            await self.bot.voice_clients[0].disconnect()
+            await asyncio.sleep(audio.info.length)
+            await self.bot.voice_clients[num].disconnect()
         else: 
             await ctx.send(f"I'm busy to ringing somewhere.")
         
@@ -61,3 +74,4 @@ class ringing(commands.Cog):
         
 async def setup(bot):
     await bot.add_cog(ringing(bot))
+
