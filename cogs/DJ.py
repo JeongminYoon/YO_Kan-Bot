@@ -214,30 +214,27 @@ class DJ(commands.Cog):
         #큐 임베드
         if not ctx.voice_client.is_playing():
             pass
-        elif ctx.voice_client.is_playing() or queue_list is not None: 
+        else: 
             embed=discord.Embed(title='Queued', description=f'[{queue_list[q_num]["title"]}]({queue_list[q_num]["url"]})', color=discord.Color.from_rgb(255, 0, 0))
             embed.add_field(name='Position', value=f'{q_num + 1}')
             embed.add_field(name='Duration', value=f'{queue_list[q_num]["duration"]}', inline=True)
             embed.add_field(name='Requested by', value=f'{queue_list[q_num]["author"]}', inline=True)
             await ctx.send(embed=embed)
+            return
 
-        
 
         #재생 루프
         while True:
 
             try:
-
-                
-                link = queue_list[0]['link']
-                title = queue_list[0]['title']
-                o_url = queue_list[0]['url'] 
-                o_author = queue_list[0]['author']
-                o_duration = queue_list[0]['duration']
-
             
                 if not ctx.voice_client.is_playing():
-                    
+
+                    link = queue_list[0]['link']
+                    title = queue_list[0]['title']
+                    o_url = queue_list[0]['url'] 
+                    o_author = queue_list[0]['author']
+                    o_duration = queue_list[0]['duration']
                     
                     self.server[server_num].nowplaying_set()
                     queue_list.pop(0)
@@ -249,18 +246,15 @@ class DJ(commands.Cog):
                     embed.add_field(name='Duration', value=f'{o_duration}', inline=True)
                     embed.add_field(name='Requested by', value=f'{o_author}', inline=True)
                     await ctx.send(embed=embed)
-
                     
 
-                    
 
+                else:
+                    await asyncio.sleep(0.1)
                     
-                    
-
-                elif ctx.voice_client.is_playing():
-                    await asyncio.sleep(0.1) 
             
             except:
+                print("Notice: loop break")
                 break
 
 
