@@ -254,7 +254,6 @@ class DJ(commands.Cog):
                     
             
             except:
-                print("Notice: loop break")
                 break
 
 
