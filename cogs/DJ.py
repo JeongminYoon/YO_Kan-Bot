@@ -200,6 +200,7 @@ class DJ(commands.Cog):
             q_info = self.DL.extract_info(url, download=False)
         except:
             await ctx.reply("ERROR: URL invalid")
+            return
 
 
         if ctx.author.nick == None:
