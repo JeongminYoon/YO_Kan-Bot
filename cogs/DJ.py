@@ -156,11 +156,15 @@ class DJ(commands.Cog):
     ###########################################
 
     @commands.command(name="play", aliases=["p", "P", "ㅔ"])
-    async def play(self, ctx, url):
+    async def play(self, ctx, url, insert_num:int = 0):
 
-        
+        if insert_num == 0:
+            insert = None
+        else:
+            insert = insert_num -1
         
         server_0 = player()
+        
         
         
 
@@ -203,22 +207,32 @@ class DJ(commands.Cog):
         else:
             author = ctx.author.nick
 
-        
-        self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
 
-        queue_list = self.server[server_num].q_list
-
-        q_num = len(queue_list) -1
-
-
-        #큐 임베드
         if not ctx.voice_client.is_playing():
-            pass
-        else: 
+            self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
+            queue_list = self.server[server_num].q_list
+
+        elif insert == None:
+            self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
+            queue_list = self.server[server_num].q_list
+            q_num = len(queue_list) -1
+
             embed=discord.Embed(title='Queued', description=f'[{queue_list[q_num]["title"]}]({queue_list[q_num]["url"]})', color=discord.Color.from_rgb(255, 0, 0))
             embed.add_field(name='Position', value=f'{q_num + 1}')
             embed.add_field(name='Duration', value=f'{queue_list[q_num]["duration"]}', inline=True)
             embed.add_field(name='Requested by', value=f'{queue_list[q_num]["author"]}', inline=True)
+            await ctx.send(embed=embed)
+            return
+        
+        else:
+            self.server[server_num].queue_insert(q_info['url'], q_info['title'], q_info['duration'], url, author, insert)
+            queue_list = self.server[server_num].q_list
+            q_num = insert
+
+            embed=discord.Embed(title='Queued', description=f'[{queue_list[q_num]["title"]}]({queue_list[q_num]["url"]})', color=discord.Color.from_rgb(255, 0, 0))
+            embed.add_field(name='Position', value=f'{q_num + 1}')
+            embed.add_field(name='Duration', value=f'{queue_list[q_num]["duration"]}', inline=True)
+            embed.add_field(name='Requested by', value=f'{queue_list[q_num+1]["author"]}', inline=True)
             await ctx.send(embed=embed)
             return
 
