@@ -475,7 +475,7 @@ class DJ(commands.Cog):
     ###########################################
     ###########################################
 
-    @commands.command(name="quicknumber", aliases=["qn"])
+    @commands.command(name="quicknumber", aliases=["qn", "Qn", "부"])
     async def quick_number(self, ctx, num:int = 1):
         
         quicklist_page = []
@@ -501,6 +501,50 @@ class DJ(commands.Cog):
         embed.add_field(name=f'Lists', value=f"{quicklist_page[num-1]}\n{num} / {len(quicklist_page)}")
 
         await ctx.send(embed=embed)
+
+
+
+
+
+    ###########################################
+    ###########################################
+
+    @commands.command(name="pause", aliases=["ps", "Ps", "ㅔㄴ"])
+    async def pause(self, ctx):
+
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
+
+        self.bot.voice_clients[server_num].pause()
+
+        await ctx.send("Paused")
+
+
+
+
+
+    ###########################################
+    ###########################################
+
+    @commands.command(name="resume", aliases=["rs", "Rs", "ㄱㄴ"])
+    async def resume(self, ctx):
+
+        try:
+            a_voice = ctx.author.voice.channel
+        except:
+            await ctx.reply("You are not in voice channel")
+            return
+
+        server_num = server_check(self, a_voice)
+
+        self.bot.voice_clients[server_num].resume()
+
+        await ctx.send("Resume")
 
 
 
