@@ -122,10 +122,7 @@ class DJ(commands.Cog):
     ###########################################
     async def left(self):
         try:
-            if self.bot.voice_clients is None:
-                pass
-            else:
-                for i in range(0, len(self.bot.voice_clients)):
+            for i in range(0, len(self.bot.voice_clients)):
                     if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
                         await self.server[i].channel.send("*Never left without saying goodbye...*")
                         await leave(self, i)
