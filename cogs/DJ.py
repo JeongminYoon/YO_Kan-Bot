@@ -40,10 +40,10 @@ async def leave(self, num):
 def server_check(self, channel: discord.VoiceChannel):
     server_num = None
     for server_num in range(0, len(self.bot.voice_clients)):
-                if channel == self.bot.voice_clients[server_num].channel:
-                    break
-                else:
-                    server_num = None
+        if channel == self.bot.voice_clients[server_num].channel:
+            break
+        else:
+            server_num = None
     return server_num
 
 async def time_sum(result:datetime, a: datetime = datetime.timedelta(seconds=0), b: datetime = datetime.timedelta(seconds=0)):
@@ -123,9 +123,9 @@ class DJ(commands.Cog):
     async def left(self):
         try:
             for i in range(0, len(self.bot.voice_clients)):
-                    if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
-                        await self.server[i].channel.send("*Never left without saying goodbye...*")
-                        await leave(self, i)
+                if self.bot.voice_clients[i].is_connected() is True and len(self.bot.voice_clients[i].channel.members) == 1:
+                    await self.server[i].channel.send("*Never left without saying goodbye...*")
+                    await leave(self, i)
                         
         except:
             pass
@@ -187,6 +187,10 @@ class DJ(commands.Cog):
             self.server[server_num].channel_set(ctx.channel)
         except:
             server_num = server_check(self, channel)
+
+            if server_num == None:
+                await ctx.reply("You are not in voice channel")
+                return
 
         
         
