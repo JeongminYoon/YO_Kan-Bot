@@ -12,7 +12,6 @@ import datetime
 
 
 
-
 ################# Setup ###################
 ###########################################
 ffmpeg_options = {
@@ -23,10 +22,11 @@ ffmpeg_options = {
 ffmpeg_location = "./ffmpeg/bin/ffmpeg" 
 
 
-url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/ttVUZOkTxuM"]
+url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/Yv9RGDeGrWg"]
 ###########################################
 ###########################################
         
+
 
 
 
@@ -46,9 +46,6 @@ def server_check(self, channel: discord.VoiceChannel):
             server_num = None
     return server_num
 
-async def time_sum(result:datetime, a: datetime = datetime.timedelta(seconds=0), b: datetime = datetime.timedelta(seconds=0)):
-    result += a + b
-    return result
 ###########################################
 ###########################################
 
@@ -63,6 +60,17 @@ class player():
         
         self.q_list = []
         self.np_dic = {'title':'', 'duration':'', 'url':'', 'author':''}
+
+    def queue_insert(self, y_link, y_title, y_duration, o_url, o_author, insert_num):
+        q_dic = {'link':'', 'title':'', 'duration':'', 'url':'', 'author':''}
+        q_dic['link'] = y_link
+        q_dic['title'] = y_title
+        q_dic['duration'] = datetime.timedelta(seconds=y_duration)
+        q_dic['url'] = o_url
+        q_dic['author'] = o_author
+        self.q_list.insert(insert_num, q_dic)
+
+        return self.q_list
         
 
     def queue_set(self, y_link, y_title, y_duration, o_url, o_author):
@@ -107,7 +115,8 @@ class DJ(commands.Cog):
         self.bot = bot
         option = {
                 'format':'bestaudio/best', 
-                'noplaylist':True
+                'noplaylist':True,
+                'skip_download':True
                 }
         self.DL = YoutubeDL(option)
         self.server = []
@@ -144,9 +153,6 @@ class DJ(commands.Cog):
     @tasks.loop(seconds=0.1)
     async def out(self):
         await self.left()
-
-
-
 
 
     ################ Commands #################
@@ -213,7 +219,6 @@ class DJ(commands.Cog):
         if not ctx.voice_client.is_playing():
             self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
             queue_list = self.server[server_num].q_list
-
         elif insert == None:
             self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
             queue_list = self.server[server_num].q_list
@@ -225,7 +230,6 @@ class DJ(commands.Cog):
             embed.add_field(name='Requested by', value=f'{queue_list[q_num]["author"]}', inline=True)
             await ctx.send(embed=embed)
             return
-        
         else:
             self.server[server_num].queue_insert(q_info['url'], q_info['title'], q_info['duration'], url, author, insert)
             queue_list = self.server[server_num].q_list
@@ -297,7 +301,6 @@ class DJ(commands.Cog):
         playlist = ""
         playlist_page = []
         playlist_duration = []
-        playlist_duration_t = datetime.timedelta(seconds=0)
         index = num-1
         count = 0
 
@@ -324,27 +327,11 @@ class DJ(commands.Cog):
                 #마지막 곡
                 elif i+1 == q_num:
                     playlist_page.append(playlist)
-            
 
-            #총 재생시간 계산기 / 곡 갯수의 홀짝에 따라 다름
-            p_list_len = len(playlist_duration) - 1
+            for i in range(1, len(playlist_duration)):
+                playlist_duration[0] += playlist_duration[i]
             
-            if len(playlist_duration) % 2 == 0: #짝
-                for i in range(0, len(playlist_duration)):
-                    if i * 2 == len(playlist_duration):
-                        break
-                    playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i], playlist_duration[p_list_len-i])
-                    
-            
-            else: #홀
-               for i in range(0, len(playlist_duration)):
-                    if i * 2 == p_list_len:
-                        playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i])
-                        break
-                    playlist_duration_t = await time_sum(playlist_duration_t, playlist_duration[i], playlist_duration[p_list_len-i])
-                    
-                    
-            embed.add_field(name=f'Lists {playlist_duration_t}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
+            embed.add_field(name=f'Lists {playlist_duration[0]}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
 
         await ctx.send(embed=embed)
     
@@ -487,17 +474,17 @@ class DJ(commands.Cog):
         
         for i in range(0, len(url_quick)):
         
-                playlist += f"{i+1}. {url_quick[i]}\n"
-                count += 1
+            playlist += f"{i+1}. {url_quick[i]}\n"
+            count += 1
                 
-                #페이지당 7곡, 임베드 용량 초과하지 않도록 잘라냄
-                if len(playlist) > 800 or count == 7:
-                    quicklist_page.append(playlist)
-                    playlist = ""
-                    count = 0
-                #마지막 곡
-                elif i+1 == len(url_quick):
-                    quicklist_page.append(playlist)
+            #페이지당 7곡, 임베드 용량 초과하지 않도록 잘라냄
+            if len(playlist) > 800 or count == 7:
+                quicklist_page.append(playlist)
+                playlist = ""
+                count = 0
+            #마지막 곡
+            elif i+1 == len(url_quick):
+                quicklist_page.append(playlist)
         
         embed.add_field(name=f'Lists', value=f"{quicklist_page[num-1]}\n{num} / {len(quicklist_page)}")
 
@@ -546,7 +533,6 @@ class DJ(commands.Cog):
         self.bot.voice_clients[server_num].resume()
 
         await ctx.send("Resume")
-
 
 
 
