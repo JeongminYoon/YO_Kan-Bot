@@ -301,6 +301,7 @@ class DJ(commands.Cog):
         playlist = ""
         playlist_page = []
         playlist_duration = []
+        play_time = datetime.timedelta(seconds=0)
         index = num-1
         count = 0
 
@@ -328,10 +329,9 @@ class DJ(commands.Cog):
                 elif i+1 == q_num:
                     playlist_page.append(playlist)
 
-            for i in range(1, len(playlist_duration)):
-                playlist_duration[0] += playlist_duration[i]
+                play_time += playlist_duration[i]
             
-            embed.add_field(name=f'Lists {playlist_duration[0]}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
+            embed.add_field(name=f'Lists {play_time}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
 
         await ctx.send(embed=embed)
     
