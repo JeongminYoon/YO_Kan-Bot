@@ -22,7 +22,7 @@ ffmpeg_options = {
 ffmpeg_location = "./ffmpeg/bin/ffmpeg" 
 
 
-url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/Yv9RGDeGrWg"]
+url_quick = ["https://youtu.be/YCZqgujSYUs", "https://youtu.be/51GIxXFKbzk", "https://youtu.be/ttVUZOkTxuM?si=fxizUn_G7tTvaN_-"]
 ###########################################
 ###########################################
         
