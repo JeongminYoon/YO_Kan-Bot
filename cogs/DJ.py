@@ -300,7 +300,6 @@ class DJ(commands.Cog):
         q_num = len(self.server[server_num].q_list)
         playlist = ""
         playlist_page = []
-        playlist_duration = []
         play_time = datetime.timedelta(seconds=0)
         index = num-1
         count = 0
@@ -315,7 +314,7 @@ class DJ(commands.Cog):
                 p_author = self.server[server_num].q_list[i]['author']
                 p_duration = self.server[server_num].q_list[i]['duration']
 
-                playlist_duration.append(p_duration)
+                
         
                 playlist += f"{i+1}. [{p_title}]({p_url}) | {p_duration} | {p_author}\n"
                 count += 1
@@ -329,7 +328,7 @@ class DJ(commands.Cog):
                 elif i+1 == q_num:
                     playlist_page.append(playlist)
 
-                play_time += playlist_duration[i]
+                play_time += p_duration
             
             embed.add_field(name=f'Lists {play_time}', value=f"{playlist_page[index]}\n{num} / {len(playlist_page)}")
 
