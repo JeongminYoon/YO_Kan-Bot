@@ -194,9 +194,7 @@ class DJ(commands.Cog):
         except:
             server_num = server_check(self, channel)
 
-            if server_num == None:
-                await ctx.reply("You are not in voice channel")
-                return
+            
 
         
         
