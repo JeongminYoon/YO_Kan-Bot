@@ -60,6 +60,7 @@ class player():
         
         self.q_list = []
         self.np_dic = {'title':'', 'duration':'', 'url':'', 'author':''}
+        self.pause = False
 
     def queue_insert(self, y_link, y_title, y_duration, o_url, o_author, insert_num):
         q_dic = {'link':'', 'title':'', 'duration':'', 'url':'', 'author':''}
@@ -248,7 +249,7 @@ class DJ(commands.Cog):
 
             try:
             
-                if not ctx.voice_client.is_playing():
+                if not ctx.voice_client.is_playing() and self.server[server_num].pause is False:
 
                     link = queue_list[0]['link']
                     title = queue_list[0]['title']
@@ -509,6 +510,7 @@ class DJ(commands.Cog):
         server_num = server_check(self, a_voice)
 
         self.bot.voice_clients[server_num].pause()
+        self.server[server_num].pause = True
 
         await ctx.send("Paused")
 
@@ -531,6 +533,7 @@ class DJ(commands.Cog):
         server_num = server_check(self, a_voice)
 
         self.bot.voice_clients[server_num].resume()
+        self.server[server_num].pause = False
 
         await ctx.send("Resume")
 
