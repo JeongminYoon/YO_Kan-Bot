@@ -3,6 +3,7 @@ import discord
 import asyncio
 from yt_dlp import YoutubeDL
 import datetime
+import time
 
 
 
@@ -60,7 +61,7 @@ class player():
         
         self.q_list = []
         self.np_dic = {'title':'', 'duration':'', 'url':'', 'author':''}
-        self.pause = False
+        # self.pause = False
 
     def queue_insert(self, y_link, y_title, y_duration, o_url, o_author, insert_num):
         q_dic = {'link':'', 'title':'', 'duration':'', 'url':'', 'author':''}
@@ -85,14 +86,6 @@ class player():
 
         return self.q_list
     
-    def nowplaying_set(self):
-
-        self.np_dic['title'] = self.q_list[0]['title']
-        self.np_dic['duration'] = self.q_list[0]['duration']
-        self.np_dic['url'] = self.q_list[0]['url']
-        self.np_dic['author'] = self.q_list[0]['author']
-
-        return self.np_dic
     
     def channel_set(self, channel: discord.TextChannel):
         self.channel = channel
@@ -117,7 +110,7 @@ class DJ(commands.Cog):
         option = {
                 'format':'bestaudio/best', 
                 'noplaylist':True,
-                'skip_download':True
+                'skip_download':True, 
                 }
         self.DL = YoutubeDL(option)
         self.server = []
@@ -162,14 +155,15 @@ class DJ(commands.Cog):
     @commands.command(name="play", aliases=["p", "P", "ㅔ"])
     async def play(self, ctx, url, insert_num:int = 0):
 
-        if insert_num == 0:
-            insert = None
-        else:
-            insert = insert_num -1
+
+        if insert_num < 0:
+            await ctx.reply("index error")
+            return
+        
         
         server_0 = player()
         
-        
+
         
 
         #단축키
@@ -179,6 +173,7 @@ class DJ(commands.Cog):
             else:
                 pass
 
+
         
         #접속
         try:
@@ -186,6 +181,8 @@ class DJ(commands.Cog):
         except:
             await ctx.reply("You are not in voice channel")
             return
+        
+
 
         try:
             await channel.connect()
@@ -196,10 +193,8 @@ class DJ(commands.Cog):
             server_num = server_check(self, channel)
 
             
-
-        
-        
             
+  
         
         #큐
         try:
@@ -207,6 +202,9 @@ class DJ(commands.Cog):
         except:
             await ctx.reply("ERROR: URL invalid")
             return
+        
+
+        
 
 
         if ctx.author.nick == None:
@@ -218,28 +216,39 @@ class DJ(commands.Cog):
         if not ctx.voice_client.is_playing():
             self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
             queue_list = self.server[server_num].q_list
-        elif insert == None:
+
+        elif insert_num == 0:
             self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
             queue_list = self.server[server_num].q_list
-            q_num = len(queue_list) -1
+            q_num = len(queue_list) - 1
+            
 
             embed=discord.Embed(title='Queued', description=f'[{queue_list[q_num]["title"]}]({queue_list[q_num]["url"]})', color=discord.Color.from_rgb(255, 0, 0))
-            embed.add_field(name='Position', value=f'{q_num + 1}')
+            embed.add_field(name='Position', value=f'{q_num}')
             embed.add_field(name='Duration', value=f'{queue_list[q_num]["duration"]}', inline=True)
             embed.add_field(name='Requested by', value=f'{queue_list[q_num]["author"]}', inline=True)
             await ctx.send(embed=embed)
+
             return
+        
         else:
-            self.server[server_num].queue_insert(q_info['url'], q_info['title'], q_info['duration'], url, author, insert)
+            self.server[server_num].queue_insert(q_info['url'], q_info['title'], q_info['duration'], url, author, insert_num)
+
+
             queue_list = self.server[server_num].q_list
-            q_num = insert
+            q_num = insert_num
+            
 
             embed=discord.Embed(title='Queued', description=f'[{queue_list[q_num]["title"]}]({queue_list[q_num]["url"]})', color=discord.Color.from_rgb(255, 0, 0))
-            embed.add_field(name='Position', value=f'{q_num + 1}')
+            embed.add_field(name='Position', value=f'{q_num}')
             embed.add_field(name='Duration', value=f'{queue_list[q_num]["duration"]}', inline=True)
-            embed.add_field(name='Requested by', value=f'{queue_list[q_num+1]["author"]}', inline=True)
+            embed.add_field(name='Requested by', value=f'{queue_list[q_num]["author"]}', inline=True)
             await ctx.send(embed=embed)
+
+            
             return
+        
+        
 
 
         #재생 루프
@@ -247,29 +256,30 @@ class DJ(commands.Cog):
 
             try:
             
-                if not ctx.voice_client.is_playing() and self.server[server_num].pause is False:
+                if not ctx.voice_client.is_playing() and ctx.voice_client.is_paused() is False:
 
                     link = queue_list[0]['link']
                     title = queue_list[0]['title']
                     o_url = queue_list[0]['url'] 
                     o_author = queue_list[0]['author']
                     o_duration = queue_list[0]['duration']
-                    
-                    self.server[server_num].nowplaying_set()
-                    queue_list.pop(0)
+
 
                     track = discord.FFmpegPCMAudio(link, **ffmpeg_options, executable=ffmpeg_location)
                     ctx.voice_client.play(track)
+
 
                     embed=discord.Embed(title='Play', description=f'[{title}]({o_url})', color=discord.Color.from_rgb(255, 0, 0))
                     embed.add_field(name='Duration', value=f'{o_duration}', inline=True)
                     embed.add_field(name='Requested by', value=f'{o_author}', inline=True)
                     await ctx.send(embed=embed)
                     
-
-
                 else:
                     await asyncio.sleep(0.1)
+                
+                if not ctx.voice_client.is_playing() and ctx.voice_client.is_paused() is False:
+                    queue_list.pop(0)
+                
                     
             
             except:
@@ -303,11 +313,11 @@ class DJ(commands.Cog):
         index = num-1
         count = 0
 
-        if q_num == 0:
+        if q_num <= 1:
             embed.add_field(name='Empty', value='')
         
         else:
-            for i in range(0, q_num):
+            for i in range(1, q_num):
                 p_title = self.server[server_num].q_list[i]['title']
                 p_url = self.server[server_num].q_list[i]['url']
                 p_author = self.server[server_num].q_list[i]['author']
@@ -315,7 +325,7 @@ class DJ(commands.Cog):
 
                 
         
-                playlist += f"{i+1}. [{p_title}]({p_url}) | {p_duration} | {p_author}\n"
+                playlist += f"{i}. [{p_title}]({p_url}) | {p_duration} | {p_author}\n"
                 count += 1
                 
                 #페이지당 7곡, 임베드 용량 초과하지 않도록 잘라냄
@@ -352,8 +362,8 @@ class DJ(commands.Cog):
         server_num = server_check(self, a_voice)
         
         if ctx.voice_client.is_playing():
-            self.bot.voice_clients[server_num].stop()
             await ctx.send("Skipping...")
+            self.bot.voice_clients[server_num].stop()
         elif not ctx.voice_client.is_playing():
             await ctx.send("Nothing to skip")
         
@@ -388,9 +398,12 @@ class DJ(commands.Cog):
     ###########################################
 
     @commands.command(name="delete", aliases=["d", "D", "ㅇ"]) 
-    async def delete(self, ctx, num:int):
-
-        index = num - 1
+    async def delete(self, ctx, index:int):
+        
+        if index <= 0: 
+            await ctx.reply("index error")
+            return
+            
 
         try:
             a_voice = ctx.author.voice.channel
@@ -410,7 +423,7 @@ class DJ(commands.Cog):
         queue_list.pop(index)
 
         embed=discord.Embed(title='Deleted', description=f'[{q_title}]({q_url})', color=discord.Color.from_rgb(255, 0, 0))
-        embed.add_field(name='Position', value=f'{num}')
+        embed.add_field(name='Position', value=f'{index}')
         embed.add_field(name='Duration', value=f'{q_duration}', inline=True)
         embed.add_field(name='Requested by', value=f'{q_author}', inline=True)
         await ctx.send(embed=embed)
@@ -433,26 +446,22 @@ class DJ(commands.Cog):
 
         server_num = server_check(self, a_voice)
         
-        nowplaying = self.server[server_num].np_dic
+        nowplaying = self.server[server_num].q_list
 
-        if ctx.voice_client.is_playing():
-            title = nowplaying['title']
-            url = nowplaying['url']
-            author = nowplaying['author']
-            duration = nowplaying['duration']
+        if len(nowplaying) >= 1:
+            title = nowplaying[0]['title']
+            url = nowplaying[0]['url']
+            author = nowplaying[0]['author']
+            duration = nowplaying[0]['duration']
 
             embed=discord.Embed(title='Now Playing', description=f'[{title}]({url})', color=discord.Color.from_rgb(255, 0, 0))
             embed.add_field(name='Duration', value=f'{duration}', inline=True)
             embed.add_field(name='Requested by', value=f'{author}', inline=True)
             await ctx.send(embed=embed)
 
-        elif not ctx.voice_client.is_playing():
+        else:
             await ctx.send("Nothing is playing")
             
-            nowplaying['url'] = ''
-            nowplaying['title'] = ''
-            nowplaying['author'] = ''
-            nowplaying['duration'] = ''
     
 
 
@@ -507,7 +516,7 @@ class DJ(commands.Cog):
         server_num = server_check(self, a_voice)
 
         self.bot.voice_clients[server_num].pause()
-        self.server[server_num].pause = True
+        
 
         await ctx.send("Paused")
 
@@ -530,7 +539,7 @@ class DJ(commands.Cog):
         server_num = server_check(self, a_voice)
 
         self.bot.voice_clients[server_num].resume()
-        self.server[server_num].pause = False
+        
 
         await ctx.send("Resume")
 
@@ -538,15 +547,7 @@ class DJ(commands.Cog):
 
 
 
-if __name__ =='__main__':
-    option = {
-                'format':'bestaudio/best', 
-                'noplaylist':True
-                }
-    self = YoutubeDL(option)
-    url = "https://youtu.be/51GIxXFKbzk"
-    data = self.extract_info(url, download=False)
-    print(data.keys())
+
 
     
 
