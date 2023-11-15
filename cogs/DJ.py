@@ -249,7 +249,7 @@ class DJ(commands.Cog):
             return
         
 
-        print("first play")
+        
 
         link = queue_list[0]['link']
         title = queue_list[0]['title']
@@ -267,14 +267,13 @@ class DJ(commands.Cog):
         embed.add_field(name='Requested by', value=f'{o_author}', inline=True)
         await ctx.send(embed=embed)
 
-        print("while entry")
+        
         
         while True:
 
             try:
             
                 if not ctx.voice_client.is_playing() and ctx.voice_client.is_paused() is False:
-                    print("second play")
                     queue_list.pop(0)
 
                     link = queue_list[0]['link']
@@ -294,7 +293,6 @@ class DJ(commands.Cog):
                     await ctx.send(embed=embed)
                     
                 else:
-                    print("sleep")
                     await asyncio.sleep(0.1)
 
                 
