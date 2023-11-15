@@ -202,7 +202,8 @@ class DJ(commands.Cog):
         except:
             await ctx.reply("ERROR: URL invalid")
             return
-    
+        
+        
         
 
 
@@ -212,7 +213,7 @@ class DJ(commands.Cog):
             author = ctx.author.nick
 
 
-        if not ctx.voice_client.is_playing():
+        if len(self.server[server_num].q_list) == 0:
             self.server[server_num].queue_set(q_info['url'], q_info['title'], q_info['duration'], url, author)
             queue_list = self.server[server_num].q_list
 
@@ -247,15 +248,34 @@ class DJ(commands.Cog):
             
             return
         
+
+        print("first play")
+
+        link = queue_list[0]['link']
+        title = queue_list[0]['title']
+        o_url = queue_list[0]['url'] 
+        o_author = queue_list[0]['author']
+        o_duration = queue_list[0]['duration']
+
+
+        track = discord.FFmpegPCMAudio(link, **ffmpeg_options, executable=ffmpeg_location)
+        ctx.voice_client.play(track)
+
+
+        embed=discord.Embed(title='Play', description=f'[{title}]({o_url})', color=discord.Color.from_rgb(255, 0, 0))
+        embed.add_field(name='Duration', value=f'{o_duration}', inline=True)
+        embed.add_field(name='Requested by', value=f'{o_author}', inline=True)
+        await ctx.send(embed=embed)
+
+        print("while entry")
         
-
-
-        #재생 루프
         while True:
 
             try:
             
                 if not ctx.voice_client.is_playing() and ctx.voice_client.is_paused() is False:
+                    print("second play")
+                    queue_list.pop(0)
 
                     link = queue_list[0]['link']
                     title = queue_list[0]['title']
@@ -274,10 +294,11 @@ class DJ(commands.Cog):
                     await ctx.send(embed=embed)
                     
                 else:
+                    print("sleep")
                     await asyncio.sleep(0.1)
+
                 
-                if not ctx.voice_client.is_playing() and ctx.voice_client.is_paused() is False:
-                    queue_list.pop(0)
+                
                 
                     
             
@@ -553,3 +574,4 @@ class DJ(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(DJ(bot))
+
