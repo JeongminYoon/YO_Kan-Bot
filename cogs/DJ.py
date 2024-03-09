@@ -60,8 +60,7 @@ class player():
     def __init__(self):
         
         self.q_list = []
-        self.np_dic = {'title':'', 'duration':'', 'url':'', 'author':''}
-        # self.pause = False
+        self.np_time = time.time()
 
     def queue_insert(self, y_link, y_title, y_duration, o_url, o_author, insert_num):
         q_dic = {'link':'', 'title':'', 'duration':'', 'url':'', 'author':''}
@@ -260,6 +259,7 @@ class DJ(commands.Cog):
 
         track = discord.FFmpegPCMAudio(link, **ffmpeg_options, executable=ffmpeg_location)
         ctx.voice_client.play(track)
+        self.server[server_num].np_time = time.time()
 
 
         embed=discord.Embed(title='Play', description=f'[{title}]({o_url})', color=discord.Color.from_rgb(255, 0, 0))
@@ -285,7 +285,7 @@ class DJ(commands.Cog):
 
                     track = discord.FFmpegPCMAudio(link, **ffmpeg_options, executable=ffmpeg_location)
                     ctx.voice_client.play(track)
-
+                    self.server[server_num].np_time = time.time()
 
                     embed=discord.Embed(title='Play', description=f'[{title}]({o_url})', color=discord.Color.from_rgb(255, 0, 0))
                     embed.add_field(name='Duration', value=f'{o_duration}', inline=True)
@@ -301,6 +301,7 @@ class DJ(commands.Cog):
                     
             
             except:
+                track.cleanup()
                 break
 
 
@@ -471,9 +472,13 @@ class DJ(commands.Cog):
             url = nowplaying[0]['url']
             author = nowplaying[0]['author']
             duration = nowplaying[0]['duration']
+            np_time = self.server[server_num].np_time
+            nowplaying_time = time.time()
+            playing_time = datetime.timedelta(seconds=nowplaying_time - np_time)
+            playing_time = str(playing_time).split('.')[0]
 
             embed=discord.Embed(title='Now Playing', description=f'[{title}]({url})', color=discord.Color.from_rgb(255, 0, 0))
-            embed.add_field(name='Duration', value=f'{duration}', inline=True)
+            embed.add_field(name='Duration', value=f'{playing_time} / {duration}', inline=True)
             embed.add_field(name='Requested by', value=f'{author}', inline=True)
             await ctx.send(embed=embed)
 
