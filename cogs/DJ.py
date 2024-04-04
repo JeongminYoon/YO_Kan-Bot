@@ -110,6 +110,7 @@ class DJ(commands.Cog):
                 'format':'bestaudio/best', 
                 'noplaylist':True,
                 'skip_download':True, 
+                'extractor_args': {'youtube': {'player_client': ['web']}}
                 }
         self.DL = YoutubeDL(option)
         self.server = []
